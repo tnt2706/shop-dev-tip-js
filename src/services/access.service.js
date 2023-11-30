@@ -30,29 +30,18 @@ async function signUp({ name, email, password }) {
     if (newShop) {
       // create private key, public key
 
-      const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
-        modulusLength: 4096,
-        publicKeyEncoding: {
-          type: 'pkcs1',
-          format: 'pem',
-        },
-        privateKeyEncoding: {
-          type: 'pkcs1',
-          format: 'pem',
-        },
-      });
+      const publicKey = crypto.randomBytes(64).toString('hex');
+      const privateKey = crypto.randomBytes(64).toString('hex');
 
-      const publicKeyString = keyTokenService.createKeyToken({ publicKey, shopId: newShop._id });
-      if (!publicKeyString) {
+      const keyStore = await keyTokenService.createKeyToken({ publicKey, privateKey, shopId: newShop._id });
+      if (!keyStore) {
         return {
           code: 'xxxx',
-          message: 'PublicKeyString error',
+          message: 'keyStory error',
         };
       }
 
-      const publicKeyObject = crypto.createPublicKey(publicKey);
-
-      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKeyObject, privateKey);
+      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey);
 
       return {
         code: 2001,
