@@ -1,8 +1,6 @@
-"use strict";
-
-const os = require("os");
-const process = require("process");
-const mongoose = require("mongoose");
+const os = require('os');
+const process = require('process');
+const mongoose = require('mongoose');
 
 const _SECONDS = 5000;
 
@@ -23,10 +21,10 @@ const checkOverload = () => {
     const maxConnections = cpuCores * 5;
 
     console.log(`Number of connections::${numberConnect}`);
-    console.log(`Memory usage::${memoryUsage/1024/1024}`);
+    console.log(`Memory usage::${memoryUsage / 1024 / 1024}`);
 
     if (numberConnect > maxConnections) {
-      console.log("Connection overload detected !");
+      console.log('Connection overload detected !');
     }
   }, _SECONDS);
 };
