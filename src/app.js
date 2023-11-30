@@ -8,17 +8,16 @@ const { checkOverload } = require("./helpers/check.connect");
 const app = express();
 
 // init middlewares
-
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(compression());
 
 // init db
-
 require("./dbs/init.mongodb");
-checkOverload();
+// checkOverload();
 
 // init router
+app.use("", require('./routers'));
 
 // handing error
 
