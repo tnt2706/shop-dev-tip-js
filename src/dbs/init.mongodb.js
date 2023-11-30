@@ -1,25 +1,24 @@
-"use strict";
+const mongoose = require('mongoose');
 
-const mongoose = require("mongoose");
-
-const { database } = require("../configs");
-const { countConnect } = require("../helpers/check.connect");
+const { database } = require('../configs');
 
 class Database {
   constructor() {
     this.connect();
   }
 
-  connect(type = "mongodb") {
+  connect(type = 'mongodb') {
     if (1 === 1) {
-      mongoose.set("debug", true);
-      mongoose.set("debug", { color: true });
+      mongoose.set('debug', true);
+      mongoose.set('debug', { color: true });
     }
+
+    console.log(database);
 
     mongoose
       .connect(database, { maxPoolSize: 50 })
-      .then((_) => console.log("Connected Mongodb success", countConnect()))
-      .catch((_) => console.log("Error connect"));
+      .then(_ => console.log('Connected Mongodb success'))
+      .catch(_ => console.log('Error connect'));
   }
 
   static getInstance() {
