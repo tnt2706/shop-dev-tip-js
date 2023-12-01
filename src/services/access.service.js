@@ -6,6 +6,7 @@ const { Shop } = require('../models');
 
 const { createTokenPair } = require('../auth/authUtils');
 const keyTokenService = require('./keyToken.service');
+const { BadRequestError}= require('../core/error.response')
 
 const RoleShop = {
   SHOP: 'SHOP',
@@ -18,10 +19,7 @@ async function signUp({ name, email, password }) {
   try {
     const holderShop = await Shop.findOne({ email }).select('_id').lean();
     if (holderShop) {
-      return {
-        code: 'xxxx',
-        message: 'Email already exists !',
-      };
+       throw new BadRequestError('ERROR: Shop already registered !')
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
