@@ -23,28 +23,9 @@ async function signUp({ name, email, password }) {
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
-
     const newShop = await Shop.create({ email, name, password: hashPassword, roles: [RoleShop.SHOP] });
-    if (newShop) {
-      // create private key, public key
 
-      const publicKey = crypto.randomBytes(64).toString('hex');
-      const privateKey = crypto.randomBytes(64).toString('hex');
-
-      const keyStore = await keyTokenService.createKeyToken({ publicKey, privateKey, shopId: newShop._id });
-      if (!keyStore) {
-        throw new BadRequestError('keyStory error')
-      }
-
-      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey);
-
-      return {
-        tokens,
-        shop: _.pick(newShop, ['_id', 'name', 'email']),
-      };
-    }
-
-    return null;
+    return shop ? _.pick(newShop, ['_id', 'name', 'email']) : null;
   } catch (error) {
     return { message: error.message, status: 'error' };
   }
