@@ -1,10 +1,16 @@
 const crypto = require('crypto');
+const JWT = require('jsonwebtoken')
 
 const { ApiKey } = require('../models');
+
+const keyTokenService = require('../services/keyToken.service');
+const { asyncHandel } = require('../helpers/asyncHelper');
+const { AuthFailureError, NotFoundError } = require('../core/error.response');
 
 const HEADER = {
   API_KEY: 'x-api-key',
   AUTHORIZATION: 'authorization',
+  CLIENT_ID: 'x-client-id'
 };
 
 const apiKey = async (req, res, next) => {
@@ -15,8 +21,6 @@ const apiKey = async (req, res, next) => {
         message: 'Forbidden Error',
       });
     }
-
-    // await ApiKey.create({ key: crypto.randomBytes(64).toString('hex'), permissions: ['0000'] });
 
     const objKey = await ApiKey.findOne({ key, status: true }).lean();
     if (!objKey) {
@@ -49,15 +53,37 @@ const permission = permission => (req, res, next) => {
   return next();
 };
 
+const authentication = asyncHandel(async (req, res, next) => {
+  try {
+    const userId = req.headers[HEADER.CLIENT_ID]
+    if (!userId) {
+      throw new AuthFailureError('Invalid request')
+    }
 
-const asyncHandel = fn => (req, res, next) => {
-    fn(req,res,next).catch(next)
-};
+    const keyStore = await keyTokenService.findByUserId(userId);
+    if (!keyStore) {
+      throw new NotFoundError('Not found key store')
+    }
 
+    const accessToken = req.headers[HEADER.AUTHORIZATION]
+    if (!accessToken) {
+      throw new AuthFailureError('Access token request')
+    }
 
+    const decodeUser = JWT.verify( accessToken,keyStore.publicKey )
+    if(decodeUser.userId !== userId){
+      throw new AuthFailureError('Invalid token')
+    }
+
+    req.keyStore = keyStore
+    next();
+  } catch (error) {
+    console.log(error)
+  }
+})
 
 module.exports = {
   apiKey,
   permission,
-  asyncHandel
+  authentication
 };

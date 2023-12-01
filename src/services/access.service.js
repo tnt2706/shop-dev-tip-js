@@ -33,71 +33,64 @@ async function signUp({ name, email, password }) {
 
       const keyStore = await keyTokenService.createKeyToken({ publicKey, privateKey, shopId: newShop._id });
       if (!keyStore) {
-        return {
-          code: 'xxxx',
-          message: 'keyStory error',
-        };
+        throw new BadRequestError('keyStory error')
       }
 
       const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey);
 
       return {
-        code: 2001,
-        metadata: { shop: _.pick(newShop, ['_id', 'name', 'email']), tokens },
+        tokens,
+        shop: _.pick(newShop, ['_id', 'name', 'email']),
       };
     }
 
-    return {
-      code: '200',
-      metadata: null,
-    };
+    return null;
   } catch (error) {
-    return { code: 'xxx', message: error.message, status: 'error' };
+    return { message: error.message, status: 'error' };
   }
 }
 
 
 async function login({ email, password, refreshToken = null }) {
   try {
-    const holderShop = await Shop.findOne({ email }).select('_id').lean();
-    if (holderShop) {
+    const foundShop = await Shop.findOne({ email }).select('password name email').lean();
+    if (!foundShop) {
       throw new BadRequestError('ERROR: Shop already registered !')
     }
 
-    const hashPassword = await bcrypt.hash(password, 10);
+    const { _id: shopId } = foundShop
 
-    const newShop = await Shop.create({ email, name, password: hashPassword, roles: [RoleShop.SHOP] });
-    if (newShop) {
-      // create private key, public key
-
-      const publicKey = crypto.randomBytes(64).toString('hex');
-      const privateKey = crypto.randomBytes(64).toString('hex');
-
-      const keyStore = await keyTokenService.createKeyToken({ publicKey, privateKey, shopId: newShop._id });
-      if (!keyStore) {
-        return {
-          code: 'xxxx',
-          message: 'keyStory error',
-        };
-      }
-
-      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey);
-
-      return {
-        code: 2001,
-        metadata: { shop: _.pick(newShop, ['_id', 'name', 'email']), tokens },
-      };
+    const match = await bcrypt.compare(password, foundShop.password);
+    if (!match) {
+      throw new BadRequestError('Password incorrect!')
     }
 
+    const publicKey = crypto.randomBytes(64).toString('hex');
+    const privateKey = crypto.randomBytes(64).toString('hex');
+
+    const tokens = await createTokenPair({ userId: shopId, email }, publicKey, privateKey);
+    await keyTokenService.createKeyToken({ publicKey, privateKey, shopId, refreshToken: tokens.refreshToken });
+
+
     return {
-      code: '200',
-      metadata: null,
+      tokens,
+      shop: _.pick(foundShop, ['_id', 'name', 'email']),
     };
   } catch (error) {
-    return { code: 'xxx', message: error.message, status: 'error' };
+    return { message: error.message, status: 'error' };
+  }
+}
+
+async function logout(keyStore) {
+  try {
+    await keyTokenService.removeKeyById(keyStore._id)
+    return keyStore
+  } catch (error) {
+    return { message: error.message, status: 'error' };
   }
 }
 module.exports = {
   signUp,
-  login
+  login,
+  logout
 };

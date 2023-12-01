@@ -13,10 +13,17 @@ class AccessController {
 
   login = async (req, res, next) => {
     new CREATED({
-      message:"Registered OK !",
+      message:"Login success !",
       metadata :await accessService.login(req.body)
     }).send(res)
-};
+  };
+
+  logout = async (req, res, next) => {
+    new CREATED({
+      message:"Logout success !",
+      metadata :await accessService.logout(req.keyStore)
+    }).send(res)
+  };
 }
 
 module.exports = new AccessController();
