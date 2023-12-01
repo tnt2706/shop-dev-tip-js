@@ -1,13 +1,13 @@
 const { KeyToken } = require('../models');
 
 
-class KeyTokenService{
+class KeyTokenService {
 
-  static  createKeyToken = async ({ shopId, publicKey, privateKey, refreshToken }) =>{
+  static createKeyToken = async ({ userId, publicKey, privateKey, refreshToken }) => {
     try {
       const token = await KeyToken.findOneAndUpdate(
-        { user: shopId },
-        { publicKey, privateKey, refreshToken, refreshTokenUsed:[] },
+        { user: userId },
+        { publicKey, privateKey, refreshToken, refreshTokenUsed: [] },
         { upsert: true, new: true }
       ).lean()
 
@@ -18,13 +18,35 @@ class KeyTokenService{
     }
   }
 
-  static findByUserId =  async (userId) =>{
-    return await KeyToken.findOne({user:userId}).lean();
+
+  static findByUserId = async (userId) => {
+    return await KeyToken.findOne({ user: userId }).lean();
   }
 
-  static removeKeyById =  async (_id) =>{
-     await KeyToken.deleteOne({_id});
+  static removeKeyById = async (_id) => {
+    await KeyToken.deleteOne({ _id });
   }
+
+  static findByRefreshToken = async (refreshToken) => {
+    return await KeyToken.findOne({ refreshToken }).lean()
+  }
+
+  static deleteKeyByUserId = async (userId) => {
+     await KeyToken.deleteOne({ user: userId })
+  }
+
+  static updateRefreshToken = async (refreshToken, oldRefreshToken) => {
+    await KeyToken.updateOne(
+      { refreshToken: oldRefreshToken },
+      {
+        $set: { refreshToken },
+        $addToSet: { refreshTokenUsed: oldRefreshToken }
+      },
+      { new: true, upsert: true }
+    ).lean()
+  }
+
+
 
 }
 

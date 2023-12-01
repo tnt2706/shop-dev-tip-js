@@ -1,15 +1,10 @@
-const { KeyToken } = require('../models');
+const { Shop } = require('../models');
 
-async function createKeyToken({ shopId, publicKey, privateKey }) {
-  try {
-    const token = KeyToken.create({ user: shopId, publicKey, privateKey });
-
-    return token ? publicKey : null;
-  } catch (error) {
-    return error;
-  }
+async function shopFindById(_id) {
+  const keyStore = await Shop.findById(_id).lean();
+  return keyStore;
 }
 
 module.exports = {
-  createKeyToken,
+  shopFindById,
 };
