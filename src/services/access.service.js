@@ -2,14 +2,13 @@ const _ = require('lodash');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
-const { NotBeforeError } = require('jsonwebtoken');
 const { Shop } = require('../models');
 
 const { shopFindById } = require('./shop.service');
 const keyTokenService = require('./keytoken.service');
 
 const { createTokenPair } = require('../auth/authUtils');
-const { BadRequestError, AuthFailureError, ForbiddenError } = require('../core/error.response');
+const { BadRequestError, AuthFailureError, ForbiddenError, NotFoundError } = require('../core/error.response');
 
 const RoleShop = {
   SHOP: 'SHOP',
@@ -90,7 +89,7 @@ async function handlerRefreshToken({ refreshToken, keyStore, user }) {
 
     const foundShop = await shopFindById(userId);
     if (!foundShop) {
-      throw new NotBeforeError('Not found shop');
+      throw new NotFoundError('Not found shop');
     }
 
     const tokens = await createTokenPair({ userId, email }, publicKey, privateKey);
