@@ -12,6 +12,16 @@ class ProductController {
     }).send(res)
   };
 
+  updateProduct = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Update product success !",
+      metadata: await productService.updateProduct(req.body.product_type, {
+        ...req.body,
+        product_shop: req.user.userId
+      })
+    }).send(res)
+  };
+
   publishProductByShop = async (req, res, next) => {
     new SuccessResponse({
       message: "Publish product success !",
@@ -58,6 +68,20 @@ class ProductController {
     new SuccessResponse({
       message: "Get getListSearchProduct success !",
       metadata: await productService.getListSearchProduct(req.params)
+    }).send(res)
+  };
+
+  findAllProducts = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Get findAllProducts success !",
+      metadata: await productService.findAllProducts(req.query)
+    }).send(res)
+  };
+
+  findProductById= async (req, res, next) => {
+    new SuccessResponse({
+      message: "Get findProductById success !",
+      metadata: await productService.findProductById(req.params)
     }).send(res)
   };
 }

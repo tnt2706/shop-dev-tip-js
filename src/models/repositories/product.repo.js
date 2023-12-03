@@ -1,5 +1,7 @@
 const { Product } = require('../product.model');
 
+const { getSelectData, unGetSelectData, removeNilObject, flattenObj } = require('../../utils');
+
 const findAllDraftsForShop = async ({ query, limit, skip }) => await queryProduct({ query, limit, skip });
 
 const findAllPublishForShop = async ({ query, limit, skip }) => await queryProduct({ query, limit, skip });
@@ -12,6 +14,29 @@ const getListSearchProduct = async ({ keySearch }) => {
   ).sort({ score: { $meta: 'textScore' } }).lean();
 
   return products;
+};
+
+const findAllProducts = async ({ limit, page, select, filter, sort }) => {
+  const skip = (page - 1) * limit;
+  const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 };
+
+  const products = Product.find(filter)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .select(getSelectData(select))
+    .lean()
+    .exec();
+
+  return products;
+};
+
+const findProductById = async ({ product_id, unselect }) => {
+  const product = Product.findById(product_id)
+    .select(unGetSelectData(unselect))
+    .lean();
+
+  return product;
 };
 
 const publishProductByShop = async (product_shop, product_id) => {
@@ -38,6 +63,12 @@ const unpublishProductByShop = async (product_shop, product_id) => {
   return modifiedCount;
 };
 
+const updateProductById = async (product_id, bodyUpdate, model) => {
+  const objectParams = removeNilObject(bodyUpdate);
+  const result = await model.findByIdAndUpdate(product_id, flattenObj(objectParams), { new: true }).lean();
+  return result;
+};
+
 const queryProduct = async ({ query, limit, skip }) => {
   const products = Product.find(query).populate('product_shop', 'name email -_id')
     .sort({ updatedAt: -1 })
@@ -53,6 +84,9 @@ module.exports = {
   findAllDraftsForShop,
   findAllPublishForShop,
   getListSearchProduct,
+  findAllProducts,
+  findProductById,
   publishProductByShop,
   unpublishProductByShop,
+  updateProductById,
 };

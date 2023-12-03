@@ -1,7 +1,16 @@
 const model = require('../models');
 const { BadRequestError } = require('../core/error.response');
 
-const { findAllDraftsForShop, publishProductByShop, unpublishProductByShop ,findAllPublishForShop, getListSearchProduct} = require('../models/repositories/product.repo')
+const {
+  findAllDraftsForShop,
+  publishProductByShop,
+  unpublishProductByShop ,
+  findAllPublishForShop,
+  getListSearchProduct,
+  findAllProducts,
+  findProductById,
+  updateProductById
+} = require('../models/repositories/product.repo')
 
 class ProductFactory {
   static productRegistry = {}
@@ -17,6 +26,15 @@ class ProductFactory {
     }
 
     return new productClass(type, payload).createProduct()
+  }
+
+  static async updateProduct(type, payload) {
+    const productClass = ProductFactory.productRegistry[type]
+    if (!productClass) {
+      throw new BadRequestError(`Invalid product type ${type}`)
+    }
+
+    return new productClass(type, payload).updateProduct(payload.product_id)
   }
 
 
@@ -44,6 +62,20 @@ class ProductFactory {
   static async getListSearchProduct({keySearch}) {
     return await getListSearchProduct({keySearch})
   }
+
+  static async findAllProducts({limit=50, page=1, sort='ctime',filter = {isPublished:true}}) {
+    return await findAllProducts({
+      limit,
+      sort,
+      filter,
+      page,
+      select :['product_name','product_description','product_thumb']
+    })
+  }
+
+  static async findProductById({product_id}) {
+    return await findProductById({product_id, unSelect:["__v"]})
+  }
 }
 
 class Product {
@@ -66,6 +98,10 @@ class Product {
   async createProduct(productId) {
     return await model.Product.create({ ...this, _id: productId });
   }
+
+  async updateProduct(product_id, bodyUpdate) {
+    return await updateProductById(product_id, bodyUpdate,model.Product);
+  }
 }
 
 
@@ -83,6 +119,16 @@ class Electronic extends Product {
 
     return newProduct
   }
+
+  async updateProduct(product_id) {
+    const objectParams = this
+    if(objectParams.product_attributes){
+      await updateProductById(product_id, objectParams.product_attributes, model.Electronic)
+    }
+
+    const product = await  super.updateProduct(product_id, objectParams)
+    return product
+   }
 }
 
 class Clothing extends Product {
@@ -98,6 +144,16 @@ class Clothing extends Product {
     if (!newProduct) throw new BadRequestError("Create product error !")
 
     return newProduct
+  }
+
+  async updateProduct(product_id) {
+   const objectParams = this
+   if(objectParams.product_attributes){
+     await updateProductById(product_id, objectParams.product_attributes, model.Clothing)
+   }
+
+   const product = await  super.updateProduct(product_id, objectParams)
+   return product
   }
 }
 
