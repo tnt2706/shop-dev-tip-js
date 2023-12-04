@@ -2,24 +2,18 @@ const express = require('express');
 
 const { asyncHandel } = require('../../helpers/asyncHelper');
 const { authentication } = require('../../auth/checkAuth');
-const productController = require('../../controllers/product.controller');
+const discountController = require('../../controllers/discount.controller');
 
 const router = express.Router();
 
-router.get('/search/:keySearch', asyncHandel(productController.getListSearchProduct));
-router.get('', asyncHandel(productController.findAllProducts));
-router.get('/:product_id', asyncHandel(productController.findProductById));
+router.get('/list_product_code', asyncHandel(discountController.getAllDiscountWithProduct));
+router.get('/amount', asyncHandel(discountController.getDiscountAmount));
+
 
 // authentication //
 router.use(authentication);
 
-router.post('', asyncHandel(productController.createProduct));
-router.put('', asyncHandel(productController.updateProduct));
-
-router.post('/publish/:id', asyncHandel(productController.publishProductByShop));
-router.post('/unpublish/:id', asyncHandel(productController.unpublishProductByShop));
-
-router.get('/drafts/all', asyncHandel(productController.findAllDraftsForShop));
-router.get('/publish/all', asyncHandel(productController.findAllPublishForShop));
+router.get('', asyncHandel(discountController.getAllDiscountByShop));
+router.post('', asyncHandel(discountController.createDiscount));
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const DOCUMENT_NAME = 'Discount';
-const COLLECTION_NAME = 'discounts';
+const COLLECTION_NAME = 'Discounts';
 
 const DiscountSchema = new Schema({
   discount_shopId: { type: Schema.Types.ObjectId, ref: 'Shop' },
