@@ -10,7 +10,9 @@ const {
   findAllProducts,
   findProductById,
   updateProductById
-} = require('../models/repositories/product.repo')
+} = require('../models/repositories/product.repo');
+
+const { insertInventory } = require('../models/repositories/inventory.repo');
 
 class ProductFactory {
   static productRegistry = {}
@@ -96,7 +98,16 @@ class Product {
   }
 
   async createProduct(productId) {
-    return await model.Product.create({ ...this, _id: productId });
+    const newProduct = await model.Product.create({ ...this, _id: productId });
+    if(newProduct){
+      insertInventory({
+        product_id: newProduct._id,
+        shop_id: this.product_shop,
+        stock: this.product_quantity
+      })
+    }
+
+    return newProduct
   }
 
   async updateProduct(product_id, bodyUpdate) {
