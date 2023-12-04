@@ -34,7 +34,7 @@ const ProductSchema = new Schema({
 ProductSchema.index({ product_name: 'text', product_description: 'text' });
 
 // Document middleware: run before .save() and .create ...
-ProductSchema.pre('save', next => {
+ProductSchema.pre('save', function (next) {
   this.product_slug = slugify(this.product_name, { lower: true });
   next();
 });
