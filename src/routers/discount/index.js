@@ -7,8 +7,7 @@ const discountController = require('../../controllers/discount.controller');
 const router = express.Router();
 
 router.get('/list_product_code', asyncHandel(discountController.getAllDiscountWithProduct));
-router.get('/amount', asyncHandel(discountController.getDiscountAmount));
-
+router.post('/amount', asyncHandel(discountController.getDiscountAmount));
 
 // authentication //
 router.use(authentication);
