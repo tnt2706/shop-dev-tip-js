@@ -43,7 +43,7 @@ class DiscountValidationBuilder {
 
   checkMaxUserPerDiscount() {
     if (this.discount_max_uses_per_user > 0 && this.userId) {
-      const userUseDiscount = this.discount_users_used.find(u => u.userId.equals(this.userId)) || [];
+      const userUseDiscount = this.discount_users_used.find(u => u.userId == this.userId) || [];
       if (userUseDiscount.length > this.discount_max_uses_per_user) {
         this.messages.push('Discount has been used up');
       }

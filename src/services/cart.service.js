@@ -11,17 +11,29 @@
  */
 
 const { Cart } = require('../models');
-const { BadRequestError, NotFoundError, ErrorResponse } = require('../core/error.response');
+
+const { findCartByUser, upsertProductToCart } = require('../models/repositories/cart.repo');
 
 class CartService {
-  constructor(payload) {
-    const {
+  static async addToCart({ userId, product }) {
+    const { productId, quantity } = product;
 
-    } = payload;
-  }
+    const foundCart = await findCartByUser(userId);
+    if (!foundCart) {
+      const newCart = await upsertProductToCart({ userId, product, count_product: 1 });
+      return newCart;
+    }
 
-  static async addToCart({}) {
+    const { _id: cartId, cart_products = [], cart_count_product } = foundCart;
 
+    const index = cart_products.findIndex(p => p.productId == productId);
+    if (index < 0) {
+      const updateCart = await upsertProductToCart({ userId, product, count_product: cart_count_product + 1 });
+      return updateCart;
+    }
+
+    cart_products[index].quantity = quantity;
+    return await Cart.findByIdAndUpdate(cartId, { cart_products }, { new: true }).lean();
   }
 }
 

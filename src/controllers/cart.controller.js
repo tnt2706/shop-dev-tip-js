@@ -5,7 +5,7 @@ class CartController {
   addToCart = async (req, res, next) => {
     new SuccessResponse({
       message: "Create discount code success !",
-      metadata: await cartService.addToCart({...req.body, shopId: req.user.userId })
+      metadata: await cartService.addToCart(req.body)
     }).send(res)
   };
 

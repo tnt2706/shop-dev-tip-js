@@ -1,31 +1,29 @@
-const Discount = require('../discount.model');
+const Cart = require('../cart.model');
 
 const { unGetSelectData } = require('../../utils');
 
-const findDiscountCodeByShop = async ({ code, shopId }) => {
-  const discount = Discount.findOne({ discount_code: code, discount_shopId: shopId })
+const findCartByUser = async userId => {
+  const cart = Cart.findOne({ cart_userId: userId })
     .select(unGetSelectData(['__v']))
     .lean();
 
-  return discount;
+  return cart;
 };
 
-const findAllDiscountCodeByShop = async ({ filter, sort = "ctime", page, limit ,unSelect}) => {
-  const skip = (page - 1) * limit;
-  const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 };
+const upsertProductToCart = async ({ product, userId, count_product }) => {
+  const updateOrUpsert = {
+    $addToSet: { cart_products: product },
+    cart_count_product: count_product,
+  };
 
-  const discounts = Discount.find(filter)
-    .sort(sortBy)
-    .skip(skip)
-    .limit(limit)
-    .select(unGetSelectData(unSelect || ['__v']))
-    .lean()
-    .exec();
+  const newCart = await Cart.findOneAndUpdate({ cart_userId: userId }, updateOrUpsert, { new: true, upsert: true })
+    .select(unGetSelectData(['__v']))
+    .lean();
 
-  return discounts;
+  return newCart;
 };
 
 module.exports = {
-  findDiscountCodeByShop,
-  findAllDiscountCodeByShop
+  findCartByUser,
+  upsertProductToCart,
 };
