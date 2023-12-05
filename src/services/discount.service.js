@@ -152,7 +152,6 @@ class DiscountService {
       totalOrder,
       discount: discountAmount,
       totalPrice: totalOrder - discountAmount,
-
     };
   }
 }

@@ -10,7 +10,7 @@ const findDiscountCodeByShop = async ({ code, shopId }) => {
   return discount;
 };
 
-const findAllDiscountCodeByShop = async ({ filter, sort = "ctime", page, limit ,unSelect}) => {
+const findAllDiscountCodeByShop = async ({ filter, sort = 'ctime', page, limit, unSelect }) => {
   const skip = (page - 1) * limit;
   const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 };
 
@@ -27,5 +27,5 @@ const findAllDiscountCodeByShop = async ({ filter, sort = "ctime", page, limit ,
 
 module.exports = {
   findDiscountCodeByShop,
-  findAllDiscountCodeByShop
+  findAllDiscountCodeByShop,
 };
