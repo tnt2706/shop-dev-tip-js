@@ -72,4 +72,5 @@ module.exports = {
   AuthFailureError,
   NotFoundError,
   ForbiddenError,
+  ErrorResponse,
 };
