@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const { Discount } = require('../models');
 const { BadRequestError, NotFoundError, ErrorResponse } = require('../core/error.response');
 
@@ -6,7 +7,7 @@ const { findDiscountCodeByShop, findAllDiscountCodeByShop } = require('../models
 const { findAllProducts } = require('../models/repositories/product.repo');
 
 class DiscountService {
-  constructor(product_type, payload) {
+  constructor(payload) {
     const {
       discount_shopId, discount_name, discount_description,
       discount_type, discount_value, discount_code, discount_start_date,
@@ -70,9 +71,7 @@ class DiscountService {
     return newDiscount;
   }
 
-  static async updateDiscount() {
-
-  }
+  static async updateDiscount() {}
 
   static async getAllDiscountWithProduct({ code, shopId, limit, page }) {
     const fountDiscount = await findDiscountCodeByShop({ code, shopId });
@@ -87,13 +86,15 @@ class DiscountService {
       filter._id = { $in: discount_product_ids };
     }
 
-    return await findAllProducts({
+    const products = await findAllProducts({
       filter,
       limit: +limit,
       page: +page,
       sort: 'ctime',
       select: ['product_name'],
     });
+
+    return products;
   }
 
   static async getAllDiscountByShop({ shopId, limit, page }) {
@@ -102,7 +103,8 @@ class DiscountService {
       discount_is_active: true,
     };
 
-    return await findAllDiscountCodeByShop({ filter, limit, page, unSelect: ['__v'] });
+    const discount = await findAllDiscountCodeByShop({ filter, limit, page, unSelect: ['__v'] });
+    return discount;
   }
 
   /*
@@ -119,7 +121,7 @@ class DiscountService {
     */
 
   static async getDiscountAmount({ codeId, products = [], userId, shopId }) {
-    const foundDiscount = await findDiscountCodeByShop({ code, shopId });
+    const foundDiscount = await findDiscountCodeByShop({ code: codeId, shopId });
     if (!foundDiscount) {
       throw new NotFoundError('Discount not found !');
     }
