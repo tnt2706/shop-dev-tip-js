@@ -70,7 +70,7 @@ class CheckoutService {
 
       if (shop_discounts.length) {
         // Every shop only have one discount
-        const { totalOrder, discount = 0 } = await getDiscountAmount({
+        const { discount = 0 } = await getDiscountAmount({
           userId,
           shopId,
           products: item_products,
