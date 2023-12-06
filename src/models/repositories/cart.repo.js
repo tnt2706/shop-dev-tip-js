@@ -10,6 +10,14 @@ const findCartByUser = async userId => {
   return cart;
 };
 
+const findCartById = async cartId => {
+  const cart = Cart.findOne({ _id: cartId, cart_state: 'active' })
+    .select(unGetSelectData(['__v']))
+    .lean();
+
+  return cart;
+};
+
 const upsertProductToCart = async ({ product, userId, count_product }) => {
   const updateOrUpsert = {
     $addToSet: { cart_products: product },
@@ -31,10 +39,12 @@ const upsertUserCartQuantity = async ({ userId, productId, quantity }) => {
   };
 
   const updateOrUpsert = {
-    $inc: { 'cart_products.$.quantity': quantity },
+    $set: {
+      'cart_products.$.quantity': quantity,
+    },
   };
 
-  const newCart = await Cart.findOneAndUpdate(query, updateOrUpsert, { new: true, upsert: true })
+  const newCart = await Cart.updateOne(query, updateOrUpsert)
     .select(unGetSelectData(['__v']))
     .lean();
 
@@ -43,6 +53,7 @@ const upsertUserCartQuantity = async ({ userId, productId, quantity }) => {
 
 module.exports = {
   findCartByUser,
+  findCartById,
   upsertProductToCart,
   upsertUserCartQuantity,
 };

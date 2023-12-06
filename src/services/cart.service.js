@@ -40,7 +40,7 @@ class CartService {
   }
 
   /*
-    Apply discount code
+    Apply update user cart
 
     shop_order_ids:[
       {
@@ -78,7 +78,7 @@ class CartService {
       return await CartService.deleteUserCart({ userId, productId });
     }
 
-    return await upsertUserCartQuantity({ userId, productId, quantity: quantity - old_quantity });
+    return await upsertUserCartQuantity({ userId, productId, quantity });
   }
 
   static async deleteUserCart({ userId, productId }) {

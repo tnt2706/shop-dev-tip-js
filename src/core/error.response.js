@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 const StatusCode = {
   FORBIDDEN: 403,
   CONFLICT: 409,

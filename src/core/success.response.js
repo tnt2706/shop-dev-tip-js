@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 const StatusCode = {
   OK: 200,
   CREATED: 201,
@@ -33,7 +34,7 @@ class CREATED extends SuccessResponse {
 }
 
 module.exports = {
-  SuccessResponse,
   OK,
   CREATED,
+  SuccessResponse,
 };
