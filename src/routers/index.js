@@ -6,6 +6,7 @@ const router = express.Router();
 router.use(apiKey);
 router.use(permission('0000'));
 
+router.use('/v1/api/comment', require('./comment'));
 router.use('/v1/api/inventory', require('./inventory'));
 router.use('/v1/api/order', require('./order'));
 router.use('/v1/api/checkout', require('./checkout'));
