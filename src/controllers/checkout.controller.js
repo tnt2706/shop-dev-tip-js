@@ -1,15 +1,13 @@
 const checkoutService = require('../services/checkout.service')
 const { SuccessResponse } = require('../core/success.response')
 
-class CartController {
+class CheckoutController {
   checkoutReview = async (req, res, next) => {
-    const metadata = await checkoutService.checkoutReview(req.body)
-    console.log(metadata)
     new SuccessResponse({
       message: "Check out review success !",
-      metadata
+      metadata: await checkoutService.checkoutReview(req.body)
     }).send(res)
   };
 }
 
-module.exports = new CartController();
+module.exports = new CheckoutController();

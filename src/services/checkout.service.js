@@ -1,9 +1,14 @@
+/* eslint-disable no-empty-function */
+/* eslint-disable camelcase */
 /* eslint-disable no-await-in-loop */
 const { BadRequestError } = require('../core/error.response');
+const { Order } = require('../models');
 
 const { findCartById } = require('../models/repositories/cart.repo');
+const { updateReversionInventoryAfterOrder } = require('../models/repositories/inventory.repo');
 const { checkProductByServer } = require('../models/repositories/product.repo');
 const { getDiscountAmount } = require('./discount.service');
+const { acquiredLock, releaseLock } = require('./redis.service');
 
 class CheckoutService {
   /*
@@ -41,7 +46,7 @@ class CheckoutService {
 
     const checkout_order = {
       totalPrice: 0,
-      freeShip: 0,
+      feeShip: 0,
       totalDiscount: 0,
       totalCheckout: 0,
     };
@@ -92,6 +97,63 @@ class CheckoutService {
       shop_order_ids,
       shop_order_ids_new,
     };
+  }
+
+  static async orderByUser({ shop_order_ids, cartId, userId, user_address = {}, user_payment = {} }) {
+    const checkoutOrder = await CheckoutService.checkoutReview({ cartId, userId, shop_order_ids });
+    const { checkout_order, shop_order_ids_new } = checkoutOrder;
+
+    const products = shop_order_ids_new.flatMap(order => order.item_products);
+
+    const productLength = products.length;
+    const acquireProducts = [];
+
+    for (let i = 0; i < productLength; i += 1) {
+      const { productId, quantity } = products[i];
+      const keyLock = await acquiredLock({ productId, quantity, cartId });
+      acquireProducts.push(!!keyLock);
+
+      if (keyLock) {
+        await releaseLock(keyLock);
+      }
+    }
+
+    if (acquireProducts.includes(false)) {
+      throw BadRequestError('Some products are updated. Please return to the shopping cart');
+    }
+
+    const order = await Order.create({
+      order_userId: userId,
+      order_checkout: checkout_order,
+      order_shopping: user_address,
+      order_payment: user_payment,
+      order_products: shop_order_ids_new,
+    });
+
+    if (order) {
+      // remove quantity and inven_reservations
+      updateReversionInventoryAfterOrder(cartId);
+    }
+
+    return order;
+  }
+
+  static async cancelOrderByUser() {
+
+  }
+
+  static async updateOrderStatusByUser() {
+
+  }
+
+  // QUERY ///
+
+  static async getOrderByUser() {
+
+  }
+
+  static async getOrdersByUser() {
+
   }
 }
 

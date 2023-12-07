@@ -1,13 +1,13 @@
-const orderService = require('../services/order.service')
+const orderService = require('../services/checkout.service')
 const {  SuccessResponse } = require('../core/success.response')
 
-class CartController {
-  checkoutOrder = async (req, res, next) => {
+class OrderController {
+  orderByUser = async (req, res, next) => {
     new SuccessResponse({
-      message: "Check out order success !",
-      metadata: await orderService.checkoutOrder(req.body)
+      message: "Order success !",
+      metadata: await orderService.orderByUser(req.body)
     }).send(res)
   };
 }
 
-module.exports = new CartController();
+module.exports = new OrderController();

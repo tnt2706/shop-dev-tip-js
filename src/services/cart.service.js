@@ -1,3 +1,4 @@
+/* eslint-disable no-return-await */
 /* eslint-disable max-len */
 /* eslint-disable camelcase */
 
@@ -63,7 +64,7 @@ class CartService {
     }
 
     const { shopId, item_products = {} } = shop_order_ids[0];
-    const { productId, quantity, old_quantity } = item_products;
+    const { productId, quantity } = item_products;
 
     const foundProduct = await findProductById({ product_id: productId, unselect: ['__v'] });
     if (!foundProduct) {
