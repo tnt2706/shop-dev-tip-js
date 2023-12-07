@@ -1,7 +1,8 @@
 /* eslint-disable no-await-in-loop */
-const { BadRequestError } = require('../core/error.response');
+const { BadRequestError, NotFoundError } = require('../core/error.response');
 const { Comment } = require('../models');
-const { findLastRightComment, findCommentById, rearrangeComments } = require('../models/repositories/comment.repo');
+const { findLastRightComment, findCommentById, rearrangeComments, rearrangeCommentsWhenDelete } = require('../models/repositories/comment.repo');
+const { findProductById } = require('./product.service');
 
 class InventoryService {
   static async createComment({ productId, content, userId, parentCommentId = null }) {
@@ -53,6 +54,36 @@ class InventoryService {
     }).lean();
 
     return comments;
+  }
+
+  /**
+     With : right-left+1
+     Update all comment has rightOf > rightDelete : -6
+
+   */
+  static async deleteComments({ productId, commentId }) {
+    const product = await findProductById({ product_id: productId });
+    if (!product) {
+      throw new NotFoundError('The product not found !');
+    }
+
+    const comment = await findCommentById(commentId);
+    if (!comment) {
+      throw new NotFoundError('The comment not found !');
+    }
+
+    const { comment_left, comment_right } = comment;
+    const width = comment_right - comment_left + 1;
+
+    await Comment.deleteMany({
+      comment_productId: productId,
+      comment_left: { $gte: comment_left },
+      comment_right: { $lte: comment_right },
+    });
+
+    rearrangeCommentsWhenDelete(productId, width);
+
+    return true;
   }
 }
 

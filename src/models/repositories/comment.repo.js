@@ -30,8 +30,23 @@ const rearrangeComments = async (productId, commentRightParent) => {
   ]);
 };
 
+const rearrangeCommentsWhenDelete = async (productId, width) => {
+  await Promise.all([
+    Comment.updateMany(
+      { comment_productId: productId, comment_right: { $gte: width } },
+      { $inc: { comment_right: -width } },
+    ),
+
+    Comment.updateMany(
+      { comment_productId: productId, comment_left: { $gte: width } },
+      { $inc: { comment_left: -width } },
+    ),
+  ]);
+};
+
 module.exports = {
   findLastRightComment,
   findCommentById,
   rearrangeComments,
+  rearrangeCommentsWhenDelete,
 };

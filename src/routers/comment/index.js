@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.use(authentication);
 router.post('', asyncHandel(commentController.addComment));
+router.delete('', asyncHandel(commentController.deleteComments));
 
 // GET ///
 
