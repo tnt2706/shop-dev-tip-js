@@ -1,10 +1,10 @@
 const express = require('express');
 
 const { asyncHandel } = require('../../helpers/asyncHelper');
-const orderController = require('../../controllers/order.controller');
+const checkoutController = require('../../controllers/checkout.controller');
 
 const router = express.Router();
 
-router.post('', asyncHandel(orderController.orderByUser));
+router.post('/review', asyncHandel(checkoutController.checkoutReview));
 
 module.exports = router;

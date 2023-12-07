@@ -4,6 +4,7 @@ const ApiKey = require('./apiKey.model');
 const Inventory = require('./inventory.model');
 const Discount = require('./discount.model');
 const Cart = require('./cart.model');
+const Order = require('./order.model');
 
 const productModel = require('./product.model');
 
@@ -14,5 +15,6 @@ module.exports = {
   Inventory,
   Discount,
   Cart,
+  Order,
   ...productModel,
 };

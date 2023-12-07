@@ -1,3 +1,5 @@
+/* eslint-disable no-return-await */
+/* eslint-disable max-len */
 /* eslint-disable camelcase */
 
 /**
@@ -39,7 +41,7 @@ class CartService {
   }
 
   /*
-    Apply discount code
+    Apply update user cart
 
     shop_order_ids:[
       {
@@ -62,7 +64,7 @@ class CartService {
     }
 
     const { shopId, item_products = {} } = shop_order_ids[0];
-    const { productId, quantity, old_quantity } = item_products;
+    const { productId, quantity } = item_products;
 
     const foundProduct = await findProductById({ product_id: productId, unselect: ['__v'] });
     if (!foundProduct) {
@@ -77,7 +79,7 @@ class CartService {
       return await CartService.deleteUserCart({ userId, productId });
     }
 
-    return await upsertUserCartQuantity({ userId, productId, quantity: quantity - old_quantity });
+    return await upsertUserCartQuantity({ userId, productId, quantity });
   }
 
   static async deleteUserCart({ userId, productId }) {
