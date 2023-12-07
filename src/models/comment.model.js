@@ -9,8 +9,8 @@ const CommentSchema = new Schema({
 
   comment_content: { type: String, require: true },
 
-  comment_left: { type: String, default: 0 },
-  comment_right: { type: String, default: 0 },
+  comment_left: { type: Number, default: 0, index: 1 },
+  comment_right: { type: Number, default: 0, index: 1 },
   comment_parentId: { type: Schema.Types.ObjectId, ref: DOCUMENT_NAME },
 
   isDeleted: { type: Boolean, default: false },

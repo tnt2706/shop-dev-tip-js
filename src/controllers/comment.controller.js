@@ -4,8 +4,8 @@ const { SuccessResponse } = require('../core/success.response')
 class CommentController {
   addComment = async (req, res, next) => {
     new SuccessResponse({
-      message: "addCommentByUser success !",
-      metadata: await commentService.addCommentByUser(req.body)
+      message: "createComment success !",
+      metadata: await commentService.createComment(req.body)
     }).send(res)
   };
 }
