@@ -32,6 +32,28 @@ class InventoryService {
     const newComment = await comment.save();
     return newComment;
   }
+
+  static async getCommentsByParentId({ productId, parentCommentId = null }) {
+    const query = parentCommentId ? { _id: parentCommentId } : { comment_parentId: parentCommentId };
+    const parentComment = await Comment.findOne({ ...query, comment_productId: productId })
+      .select('comment_right comment_left')
+      .lean();
+
+    if (!parentComment) {
+      throw new BadRequestError('Parent comment not found !');
+    }
+
+    const { comment_right, comment_left } = parentComment;
+
+    const comments = await Comment.find({
+      comment_productId: productId,
+      comment_left: { $gt: comment_left },
+      comment_right: { $lte: comment_right },
+
+    }).lean();
+
+    return comments;
+  }
 }
 
 module.exports = InventoryService;

@@ -9,4 +9,8 @@ const router = express.Router();
 router.use(authentication);
 router.post('', asyncHandel(commentController.addComment));
 
+// GET ///
+
+router.get('', asyncHandel(commentController.getCommentsByParentId));
+
 module.exports = router;
