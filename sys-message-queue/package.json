@@ -1,0 +1,17 @@
+{
+  "name": "sys-message-queue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "NODE_ENV=dev node --watch app",
+    "start-with-env-file": "export $(grep -v '^#' .env | xargs) && node --watch app"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "lodash": "^4.17.21",
+    "winston": "^3.11.0"
+  }
+}
