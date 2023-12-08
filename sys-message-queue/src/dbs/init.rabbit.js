@@ -5,9 +5,9 @@ const { rabbitMq } = require('../configs');
 const connectRabbitMQ = async () => {
   try {
     const connection = await amqplib.connect(rabbitMq);
-    const chanel = await connection.createChannel();
+    const channel = await connection.createChannel();
 
-    return { chanel, connection };
+    return { channel, connection };
   } catch (error) {
     logger.error('Error connecting Rabbit MQ', { error });
   }
