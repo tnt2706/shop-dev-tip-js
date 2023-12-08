@@ -15,14 +15,8 @@ const messageService = {
 
       const notiQueue = 'notificationQueueProcess';
 
-      /**
-        await channel.consume(notiQueue, mess => {
-          logger.info('consumerToQueueNormal :: result', mess.content.toString());
-          channel.ack(mess)
-        }
-       */
-
-      // Create error TTL when producer send with TTL = 10s
+      // 1.TTL -  Create error TTL when producer send with TTL = 10s
+      /*
       const timeExpire = 20000;
 
       setTimeout(async () => {
@@ -31,6 +25,29 @@ const messageService = {
           channel.ack(mess);
         });
       }, timeExpire);
+      */
+
+      // 2. LOGIC
+
+      await channel.consume(notiQueue, mess => {
+        try {
+          const numberRandom = Math.random();
+          logger.info('numberRandom', { numberRandom });
+          if (numberRandom < 0.8) {
+            throw new Error('Send notification failed::: HOT FIX');
+          }
+          logger.info('consumerToQueueNormal :: result', mess.content.toString());
+          channel.ack(mess);
+        } catch (error) {
+          /**
+           * nack: negative acknowledgment
+           * params 1: message
+           * params 2: Sắp xếp lại hàng đợi hay không=> đưa lại về queue ban đầu
+           * params 3: Reject many message
+           */
+          channel.nack(mess, false, false);
+        }
+      });
     } catch (error) {
       logger.error('consumerToQueueNormal :: ERROR', { error });
     }
