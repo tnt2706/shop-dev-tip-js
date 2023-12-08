@@ -18,17 +18,18 @@ const messageService = {
       /**
         await channel.consume(notiQueue, mess => {
           logger.info('consumerToQueueNormal :: result', mess.content.toString());
-        },
-        { noAck: true });
+          channel.ack(mess)
+        }
        */
 
       // Create error TTL when producer send with TTL = 10s
       const timeExpire = 20000;
+
       setTimeout(async () => {
         await channel.consume(notiQueue, mess => {
           logger.info('consumerToQueueNormal :: result', mess.content.toString());
-        },
-        { noAck: true });
+          channel.ack(mess);
+        });
       }, timeExpire);
     } catch (error) {
       logger.error('consumerToQueueNormal :: ERROR', { error });
