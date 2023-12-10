@@ -13,4 +13,6 @@ router.use(authentication);
 router.post('/product', asyncHandel(uploadController.uploadFile));
 router.post('/product/local', upload.single('file'), asyncHandel(uploadController.uploadFileFromLocal));
 
+router.post('/product/multiple', upload.array('files', 5), asyncHandel(uploadController.uploadMultipleFileFromLocal));
+
 module.exports = router;
