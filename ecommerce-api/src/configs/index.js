@@ -1,8 +1,9 @@
-const container = require('./container')
-const db = require('./db')
+const container = require('./container');
+const db = require('./db');
+const cloudinary = require('./cloudinary.config');
 
-
-module.exports={
+module.exports = {
   ...container,
-  ...db
-}
+  ...db,
+  ...cloudinary,
+};
