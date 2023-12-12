@@ -1,8 +1,16 @@
 const fs = require('fs');
+const crypto = require('crypto');
 const path = require('path');
 const cloudinary = require('cloudinary');
+const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+
+const config = require('../configs');
+
+const client = new S3Client({ region: config.s3.region });
 
 class UploadService {
+  // Cloudinary
   static async uploadFile() {
     try {
       const url = 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg';
@@ -66,31 +74,29 @@ class UploadService {
       logger.error('uploadMultipleFileFromLocal :::ERROR', { error: error.message });
     }
   }
+
+  // AWS S3
+
+  static async uploadFileFromLocalToS3({ file }) {
+    try {
+      const key = crypto.randomBytes(16).toString('hex');
+
+      const putCommand = new PutObjectCommand({
+        Key: key,
+        Body: file.buffer,
+        Bucket: config.s3.shopBucket,
+        ContentType: 'image/jpeg',
+      });
+
+      await client.send(putCommand);
+
+      const command = new GetObjectCommand({ Bucket: config.s3.shopBucket, Key: key });
+      const url = getSignedUrl(client, command, { expiresIn: config.s3.shopBucketExpires });
+      return url;
+    } catch (error) {
+      logger.error('uploadFileFromLocalToS3 :::ERROR', { error: error.message });
+    }
+  }
 }
 
 module.exports = UploadService;
-
-// file1: [
-//   {
-//     fieldname: 'file1',
-//     originalname: '11 copy.jpeg',
-//     encoding: '7bit',
-//     mimetype: 'image/jpeg',
-//     destination: 'uploads/',
-//     filename: '1702225000684-11 copy.jpeg',
-//     path: 'uploads/1702225000684-11 copy.jpeg',
-//     size: 68871
-//   }
-// ],
-// file2: [
-//   {
-//     fieldname: 'file2',
-//     originalname: '11.jpeg',
-//     encoding: '7bit',
-//     mimetype: 'image/jpeg',
-//     destination: 'uploads/',
-//     filename: '1702225000685-11.jpeg',
-//     path: 'uploads/1702225000685-11.jpeg',
-//     size: 68871
-//   }
-// ]
