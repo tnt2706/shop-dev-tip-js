@@ -4,11 +4,20 @@ const compression = require('compression');
 const { default: helmet } = require('helmet');
 const bodyParser = require('body-parser');
 
+const RateLimit = require('express-rate-limit');
+
 const { checkOverload } = require('./helpers/check.connect');
 
 const app = express();
+const limiter = RateLimit({
+  windowMs: 1 * 1000, // 15 minutes
+  max: 1000, // max 100 requests per windowMs
+});
+
+// apply rate limiter to all requests
 
 // init middlewares
+app.use(limiter);
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(compression());
