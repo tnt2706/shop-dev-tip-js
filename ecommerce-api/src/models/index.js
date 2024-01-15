@@ -6,6 +6,9 @@ const Discount = require('./discount.model');
 const Cart = require('./cart.model');
 const Order = require('./order.model');
 const Comment = require('./comment.model');
+const User = require('./user.model');
+const Resource = require('./resource.model');
+const Role = require('./role.model');
 
 const productModel = require('./product.model');
 
@@ -18,5 +21,8 @@ module.exports = {
   Cart,
   Order,
   Comment,
+  User,
+  Resource,
+  Role,
   ...productModel,
 };
